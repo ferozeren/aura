@@ -27,16 +27,20 @@ fn create_tmp_directory() -> Result<PathBuf, Box<dyn Error>> {
 
 fn build_package(mut aura_path: PathBuf, package_name: &str) -> Result<(), Box<dyn Error>> {
     aura_path.push(package_name);
-
     if !Path::new(&aura_path).exists() {
         std::process::exit(0);
     }
 
-    std::process::Command::new("makepkg")
+    let result = std::process::Command::new("makepkg")
         .arg("-si")
         .current_dir(&aura_path)
         .spawn()?
-        .wait()?;
+        .wait();
+
+    if let Err(e) = result {
+        println!("Command Failed: {}", e);
+        std::process::exit(1);
+    }
 
     Ok(())
 }
@@ -89,7 +93,7 @@ fn clean_cache_path(cache_path: &str) -> Result<(), Box<dyn Error>> {
         return Ok(());
     }
     let mut choice: String = String::new();
-    print!("clear Cache folder for aura? (Y/n): ");
+    print!("Clear Cache folder for aura? (Y/n): ");
     std::io::stdout().flush()?;
     io::stdin().read_line(&mut choice)?;
     choice = choice.trim().to_lowercase();
@@ -133,6 +137,18 @@ fn main() -> Result<(), Box<dyn Error>> {
         } else {
             println!("Invalid args..");
         }
+    } else if cmd_args.len() > 2 && cmd_args[1] == "-S" {
+        for args in &cmd_args[2..] {
+            let package_name: &str = args.trim();
+            let result = execute_command(package_name);
+
+            if let Err(e) = result {
+                println!("Command failed: {}", e);
+                std::process::exit(1);
+            }
+        }
+        let package_name: &str = cmd_args[2].trim();
+        execute_command(package_name)?;
     } else {
         println!("Invalid args...");
         help();

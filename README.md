@@ -4,9 +4,15 @@
 
 See also: https://archlinux.org/news/recent-services-outages/
 
+## Install aura
+
+```bash
+cargo install --path . 
+```
+
 ## Usage
 
-### Install Packages
+### Install Packages from Arch's AUR Github Mirror
 
 ```bash
 aura -S visual-studio-code-bin
@@ -25,5 +31,10 @@ sudo pacman -R visual-studio-code-bin
 
 ```bash
 aura -Sc
+```
+
+Or
+
+```bash
 aura -Scc
 ```
